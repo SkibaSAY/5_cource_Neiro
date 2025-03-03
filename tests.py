@@ -8,6 +8,21 @@ class Assert:
         applicant = JsonDeserializer().deserialize(data)
         TestDeserializeMethods().assertEquals(json.dumps(applicant), json.dumps(current))
 
+
+class Fail:
+    def __init__(self, data: str):
+        current, applicant = None, None
+        try:
+            json.loads(data)
+        except:
+            current = True
+        try:
+            JsonDeserializer().deserialize(data)
+        except:
+            applicant = True
+        TestDeserializeMethods().assertEquals(applicant, current)
+
+
 # Опора на https://jsonlint.com/
 class TestDeserializeMethods(unittest.TestCase):
     # TODO: написать тесты для сценариев с невалидной JSON
@@ -16,17 +31,14 @@ class TestDeserializeMethods(unittest.TestCase):
         #Assert('')
 
         Assert('1234')
-
         Assert('"dfsfsdfsdfsdf"')
-
-        # t_4 = '"NULL"'
-        # self.assertEqual(JsonDeserializer().deserialize(t_4), None)
-        
-        # t_5 = '"True"'
-        # self.assertEqual(JsonDeserializer().deserialize(t_5), True)
-
-        # t_6 = '"False"'
-        # self.assertEqual(JsonDeserializer().deserialize(t_6), False)
+        Assert('null')
+        Assert('true')
+        Assert('false')
+        Fail('False')
+        Fail('True')
+        Fail('NULL')
+        Fail('true')
     
     def test_dict(self):
         Assert('{}')
@@ -65,6 +77,9 @@ class TestDeserializeMethods(unittest.TestCase):
         Assert('[1,2,3]')
         Assert('[1,"dsdsf}",[1,2,3]]')
         Assert('{"a":1, "b": {}, "c":[1,2,3]}')
+
+    def null_bool(self):
+        Assert('{"test": null, "t2": true,     "t3"   : false}')
 
 if __name__ == '__main__':
     unittest.main()

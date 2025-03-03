@@ -8,7 +8,7 @@ class JsonFieldType(Enum):
 # Опора на https://jsonlint.com/
 class JsonDeserializer:
     """
-    Диссериализация Json -> object
+    Дисериализация Json -> object
     """
 
     def __init__(self):
@@ -55,12 +55,44 @@ class JsonDeserializer:
             elif cur == '[':
                 # array
                 obj = self._find_array()
+            elif cur == 't' or cur == 'f':
+                obj = self._find_bool()
+            elif cur == 'n':
+                obj = self._find_null()
             else:
                 raise ValueError(f'Неожиданный символ')
                 #raise ValueError(f'Невалидный JSON')
         self._skip_spaces()
         return obj
-    
+
+    def _find_bool(self) -> bool:
+        value = True
+        if self._current == 't' \
+            and (right := self._index + 4) <= len(self._text) \
+            and self._text[self._index : right] == 'true':
+            self._index += 4
+        elif self._current == 'f' \
+            and (right := self._index + 5) <= len(self._text) \
+            and self._text[self._index : right] == 'false':
+            self._index += 5
+            value = False
+        else:
+            raise ValueError('Ожидалось bool')
+        
+        self._skip_spaces()
+        return value
+        
+    def _find_null(self) -> bool:
+        if self._current == 'n' \
+            and (right := self._index + 4) <= len(self._text) \
+            and self._text[self._index : right] == 'null':
+            self._index += 4
+        else:
+            raise ValueError('Ожидалось null')
+        
+        self._skip_spaces()
+        return None
+
     def _find_digit(self) -> int:
         value = 0
         if not self._current.isdigit():
@@ -164,3 +196,13 @@ class JsonDeserializer:
         
         self._skip_spaces()
         return arr
+
+class JsonSerializer:
+    """
+    Cериализация Json -> object
+    """
+
+    def __init__(self, ):
+        pass
+
+    def serialize(self, object) -> str:      
