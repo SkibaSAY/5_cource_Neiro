@@ -5,10 +5,10 @@ class JsonFieldType(Enum):
     Json = 2
     BLUE = 3
 
-# Опора на https://jsonlint.com/
 class JsonDeserializer:
     """
     Дисериализация Json -> object
+    # https://jsonlint.com/
     """
 
     def __init__(self):
@@ -200,9 +200,52 @@ class JsonDeserializer:
 class JsonSerializer:
     """
     Cериализация Json -> object
+    # https://jsonformatter.org/
     """
 
-    def __init__(self, ):
+    def __init__(self):
         pass
 
-    def serialize(self, object) -> str:      
+    def serialize(self, object) -> str:
+        """
+        Сериализация в JSON
+        """
+        return self._serialize(object, 0)
+
+    def _serialize(self, object, space_count: int) -> str:
+        if isinstance(object, dict):
+            return self._dict_serialize(object, space_count)
+        elif isinstance(object, list):
+            return self._array_serialize(object, space_count)
+        elif isinstance(object, str):
+            return f'"{object}"'
+        elif isinstance(object, bool):
+            return 'true' if object else 'false'
+        elif object is None:
+            return 'null'
+        else:
+            return str(object)
+
+    def _dict_serialize(self, object: dict, space_count: int) -> str:
+        rows = []
+
+        for key, value in object.items():
+            rows.append(' '*((space_count+1)*2) + f'"{key}": {self._serialize(value, space_count + 1)}')
+        result = ',\n'.join(rows)
+
+        if len(rows) > 0:
+            return '{\n' + result + '\n' + ' '*(space_count*2) + '}'
+        else:
+            return '{}'
+        
+    def _array_serialize(self, array: dict, space_count: int) -> str:
+        rows = []
+
+        for item in array:
+            rows.append(' '*((space_count+1)*2) + f'{self._serialize(item, space_count + 1)}')
+        result = ',\n'.join(rows)
+
+        if len(rows) > 0:
+            return '[\n' + result + '\n' + ' '*(space_count*2) + ']'
+        else:
+            return '[]'
